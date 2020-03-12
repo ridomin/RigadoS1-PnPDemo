@@ -1,0 +1,146 @@
+{
+  "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
+  "@id": "urn:rigado:S1_Sensor:3",
+  "@type": "CapabilityModel",
+  "displayName": "S1 Sensor",
+  "implements": [
+    {
+      "name": "Device_information_S1_Sensor",
+      "schema": {
+        "@id": "urn:azureiot:DeviceManagement:DeviceInformation:1",
+        "@type": "Interface",
+        "displayName": "Device Information",
+        "contents": [
+          {
+            "@type": "Property",
+            "name": "manufacturer",
+            "displayName": "Manufacturer",
+            "schema": "string",
+            "description": "Company name of the device manufacturer. This could be the same as the name of the original equipment manufacturer (OEM). Ex. Contoso."
+          },
+          {
+            "@type": "Property",
+            "name": "model",
+            "displayName": "Device model",
+            "schema": "string",
+            "description": "Device model name or ID. Ex. Surface Book 2."
+          },
+          {
+            "@type": "Property",
+            "name": "swVersion",
+            "displayName": "Software version",
+            "schema": "string",
+            "description": "Version of the software on your device. This could be the version of your firmware. Ex. 1.3.45"
+          },
+          {
+            "@type": "Property",
+            "name": "osName",
+            "displayName": "Operating system name",
+            "schema": "string",
+            "description": "Name of the operating system on the device. Ex. Windows 10 IoT Core."
+          },
+          {
+            "@type": "Property",
+            "name": "processorArchitecture",
+            "displayName": "Processor architecture",
+            "schema": "string",
+            "description": "Architecture of the processor on the device. Ex. x64 or ARM."
+          },
+          {
+            "@type": "Property",
+            "name": "processorManufacturer",
+            "displayName": "Processor manufacturer",
+            "schema": "string",
+            "description": "Name of the manufacturer of the processor on the device. Ex. Intel."
+          },
+          {
+            "@type": "Property",
+            "name": "totalStorage",
+            "displayName": "Total storage",
+            "schema": "long",
+            "displayUnit": "kilobytes",
+            "description": "Total available storage on the device in kilobytes. Ex. 2048000 kilobytes."
+          },
+          {
+            "@type": "Property",
+            "name": "totalMemory",
+            "displayName": "Total memory",
+            "schema": "long",
+            "displayUnit": "kilobytes",
+            "description": "Total available memory on the device in kilobytes. Ex. 256000 kilobytes."
+          }
+        ],
+        "@context": "http://azureiot.com/v1/contexts/IoTModel.json"
+      }
+    },
+    {
+      "name": "S1_Sensor",
+      "schema": {
+        "@id": "urn:rigado:interfaces:S1_Sensor:3",
+        "@type": "Interface",
+        "displayName": {
+          "en": "Interface"
+        },
+        "contents": [
+          {
+            "@type": "Property",
+            "name": "refreshInterval",
+            "displayName": "Telemetry Refresh Interval",
+            "schema": "integer",
+            "writable": true,
+            "description": "Seconds to refresh telemetry"
+          },
+          {
+            "@type": "Property",
+            "name": "running",
+            "displayName": "TelemetryRunning",
+            "schema": "boolean",
+            "description": "Boolean to describe if the telemetry is running."
+          },
+          {
+            "@type": "Command",
+            "name": "start",
+            "comment": "This Commands will start the telemetry.",
+            "commandType": "synchronous"
+          },
+          {
+            "@type": "Command",
+            "name": "stop",
+            "comment": "This Commands will stop the telemetry.",
+            "commandType": "synchronous"
+          },
+          {
+            "@id": "urn:rigado:interfaces:S1_Sensor:battery:1",
+            "@type": "Telemetry",
+            "displayName": {
+              "en": "battery"
+            },
+            "name": "battery",
+            "schema": "integer"
+          },
+          {
+            "@id": "urn:rigado:interfaces:S1_Sensor:temperature:1",
+            "@type": "Telemetry",
+            "displayName": {
+              "en": "temperature"
+            },
+            "name": "temperature",
+            "schema": "double",
+            "unit": "Units/Temperature/celsius"
+          },
+          {
+            "@id": "urn:rigado:interfaces:S1_Sensor:humidity:1",
+            "@type": "Telemetry",
+            "displayName": {
+              "en": "humidity"
+            },
+            "name": "humidity",
+            "schema": "double",
+            "unit": "Units/Humidity/percent"
+          }
+        ],
+        "@context": "http://azureiot.com/v1/contexts/IoTModel.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureIoT.PnP.DeviceInformation", "AzureIoT.PnP.DeviceInformation\AzureIoT.PnP.DeviceInformation.csproj", "{8E951A13-8C47-4622-98B6-9BD1B7069569}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonInterfaces", "CommonInterfaces", "{72E44517-19F0-438D-BCD6-E2FBD37B8887}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rigado.S1-Central-GA", "Rigado.S1-Central-GA\Rigado.S1-Central-GA.csproj", "{AA585CAF-3AA3-42E7-82C7-81F242269084}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rigado.S1-PnP-GA", "Rigado.S1-PnP-GA\Rigado.S1-PnP-GA.csproj", "{EC294944-9AD8-4D55-BCFD-A7656B448944}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rigado.S1-PnP-PP", "Rigado.S1-PnP-PP\Rigado.S1-PnP-PP.csproj", "{698816AF-D29B-4AAC-9986-AC9572C49D5B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_models", "_models", "{44E17C37-3B25-488E-80EF-F2F7B36766BA}"
+	ProjectSection(SolutionItems) = preProject
+		_models\S1_DCM.json = _models\S1_DCM.json
+		_models\S1_DCN.inline.json = _models\S1_DCN.inline.json
+		_models\S1_SensorInterface.json = _models\S1_SensorInterface.json
+		_models\urn_azureiot_DeviceManagement_DeviceInformation_1.interface.json = _models\urn_azureiot_DeviceManagement_DeviceInformation_1.interface.json
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8E951A13-8C47-4622-98B6-9BD1B7069569}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E951A13-8C47-4622-98B6-9BD1B7069569}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E951A13-8C47-4622-98B6-9BD1B7069569}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E951A13-8C47-4622-98B6-9BD1B7069569}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA585CAF-3AA3-42E7-82C7-81F242269084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA585CAF-3AA3-42E7-82C7-81F242269084}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA585CAF-3AA3-42E7-82C7-81F242269084}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA585CAF-3AA3-42E7-82C7-81F242269084}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC294944-9AD8-4D55-BCFD-A7656B448944}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC294944-9AD8-4D55-BCFD-A7656B448944}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC294944-9AD8-4D55-BCFD-A7656B448944}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC294944-9AD8-4D55-BCFD-A7656B448944}.Release|Any CPU.Build.0 = Release|Any CPU
+		{698816AF-D29B-4AAC-9986-AC9572C49D5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{698816AF-D29B-4AAC-9986-AC9572C49D5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{698816AF-D29B-4AAC-9986-AC9572C49D5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{698816AF-D29B-4AAC-9986-AC9572C49D5B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8E951A13-8C47-4622-98B6-9BD1B7069569} = {72E44517-19F0-438D-BCD6-E2FBD37B8887}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3BFB2BE-1D73-4F99-A829-6F2A19538263}
+	EndGlobalSection
+EndGlobal
