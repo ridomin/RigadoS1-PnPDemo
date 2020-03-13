@@ -3,6 +3,7 @@ using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Rigado.S1_PnP_GA
@@ -89,18 +90,34 @@ namespace Rigado.S1_PnP_GA
         }
 
         //Telemetry
-        public async Task SendTelemetryAsync()
+        public async Task EnterTelemetryLoopAsync(CancellationToken quitSignal)
         {
-            var rnd = new Random();
-            var temp = rnd.NextDouble() + 50.0;
-            var humid = rnd.NextDouble() + 20.1;
-            var batt = rnd.Next(10);
-            string blob = $"{{\"temperature\": {temp}, \"humidity\": {humid} , \"battery\" : {batt}}}";
-            Console.WriteLine($"Sending {blob} . Waiting: {refreshInterval}s");
+            async Task SendTelemetryAsync()
+            {
+                var rnd = new Random();
+                var temp = rnd.NextDouble() + 50.0;
+                var humid = rnd.NextDouble() + 20.1;
+                var batt = rnd.Next(10);
+                string blob = $"{{\"temperature\": {temp}, \"humidity\": {humid} , \"battery\" : {batt}}}";
+                Console.WriteLine($"Sending {blob} . Waiting: {refreshInterval}s");
 
-            var message = Encoding.UTF8.GetBytes(blob);
+                var message = Encoding.UTF8.GetBytes(blob);
 
-            await deviceClient.SendEventAsync(new Message(message));
+                await deviceClient.SendEventAsync(new Message(message));
+            }
+
+            while (!quitSignal.IsCancellationRequested)
+            {
+                if (running)
+                {
+                    await SendTelemetryAsync();
+                }
+                else
+                {
+                    Console.WriteLine("Device is stopped");
+                }
+                Thread.Sleep(refreshInterval * 1000);
+            }
         }
 
         //Commands

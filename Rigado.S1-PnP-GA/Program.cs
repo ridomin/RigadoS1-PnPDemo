@@ -22,7 +22,7 @@ namespace Rigado.S1_PnP_GA
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var connectionString = ValidateConfigOrDie();
-            var device = new S1DeviceLegacy(connectionString, logger, stoppingToken);
+            var device = new S1Device(connectionString, logger, stoppingToken);
             await device.RunDeviceAsync();
         }
 

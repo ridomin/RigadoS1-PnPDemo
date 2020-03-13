@@ -5,16 +5,16 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rigado.S1_Central_GA
+namespace Rigado.S1_PnP_GA
 {
-    class S1DeviceLegacy
+    class S1Device
     {
         private string _connectionString;
 
         private readonly ILogger _logger;
         private readonly CancellationToken _quitSignal;
 
-        public S1DeviceLegacy(string connectionString, ILogger logger, CancellationToken quitSignal)
+        public S1Device(string connectionString, ILogger logger, CancellationToken quitSignal)
         {
             _connectionString = connectionString;
             _logger = logger;
@@ -32,19 +32,7 @@ namespace Rigado.S1_Central_GA
             var s1Sensor = new S1Sensor(deviceClient);
             await s1Sensor.SyncTwinPropertiesAsync();
             await s1Sensor.RegisterCommandsAsync();
-            
-            while (!_quitSignal.IsCancellationRequested )
-            {
-                if (s1Sensor.running)
-                {
-                    await s1Sensor.SendTelemetryAsync();
-                }
-                else
-                {
-                    Console.WriteLine($"Waiting {s1Sensor.refreshInterval}s. Status {s1Sensor.running}\n---\n");
-                }
-                Thread.Sleep(s1Sensor.refreshInterval*1000);
-            }
+            await s1Sensor.EnterTelemetryLoopAsync(_quitSignal);
         }
     }
 }
