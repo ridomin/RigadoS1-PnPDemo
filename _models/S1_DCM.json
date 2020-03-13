@@ -1,0 +1,16 @@
+{
+  "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
+  "@id": "urn:rigado:S1_Sensor:3",
+  "@type": "CapabilityModel",
+  "displayName": "S1 Sensor",
+  "implements": [
+    {
+      "name": "Device_information_S1_Sensor",
+      "schema": "urn:azureiot:DeviceManagement:DeviceInformation:1"
+    },
+    {
+      "name": "S1_Sensor",
+      "schema": "urn:rigado:interfaces:S1_Sensor:3"
+    }
+  ]
+}
