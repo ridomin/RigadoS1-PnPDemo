@@ -2,7 +2,7 @@
 
 This repo contains a C# sample to demo [Azure IoT PnP](https://docs.microsoft.com/en-us/azure/iot-pnp/overview-iot-plug-and-play) (Plug & Play) features.
 
-> The materials on this repo are not related to *Rigado*
+>*The materials on this repo are not related to the Rigado company*
 
 This demo is based on the *Public Preview* milestone showing how to connect - and control - a device to Hub (with DPS) and Central.
 
@@ -10,10 +10,10 @@ There are three projects to show different implementation options based on the a
 
 
 |Project|Description|SDK|
-|:------|-----------|---|
-|Rigado.S1-PnP-PP|Device simulator using the Public Preview DigitalTwins SDK.|[DigitalTwin.Client 1.0-preview001](https://www.nuget.org/packages/Microsoft.Azure.Devices.DigitalTwin.Client/1.0.0-preview-001)|
-|Rigado.S1-PnP-GA|Device simulator using the preview DeviceClient SDK (without PnP support) by manually adopting the `$iotin` convention|[Devices.Client 1.29.0-preview004](https://www.nuget.org/packages/Microsoft.Azure.Devices.Client/1.29.0-preview-004)|
-|Rigado.S1-Central-GA|Device simulator targeting Central without using PnP (no auto register)|[Devices.Client 1.23.2](https://www.nuget.org/packages/Microsoft.Azure.Devices.Client/1.23.2)
+|:------|:----------|:--|
+|[Rigado.S1-PnP-PP](Rigado.S1-PnP-PP)|Device simulator using the Public Preview DigitalTwins SDK.|[DigitalTwin.Client 1.0-preview001](https://www.nuget.org/packages/Microsoft.Azure.Devices.DigitalTwin.Client/1.0.0-preview-001)|
+|[Rigado.S1-PnP-GA](Rigado.S1-Central-GA)|Device simulator using the preview DeviceClient SDK (without PnP support) by manually adopting the `$iotin` convention|[Devices.Client 1.29.0-preview004](https://www.nuget.org/packages/Microsoft.Azure.Devices.Client/1.29.0-preview-004)|
+|[Rigado.S1-Central-GA](Rigado.S1-Central-GA)|Device simulator targeting Central without using PnP (no auto register)|[Devices.Client 1.23.2](https://www.nuget.org/packages/Microsoft.Azure.Devices.Client/1.23.2)
 
 These three projects are completely functional: Telemetry, Properties and Commands work seamessly with Central and/or Hub. 
 
