@@ -29,8 +29,8 @@ namespace Rigado.S1_PnP_GA
         // Properties
         public async Task SyncTwinPropertiesAsync()
         {
-            await ReadTwinPropsAsync();
             await UpdatePropertiesAsync();
+            await ReadTwinPropsAsync();
             await deviceClient.SetDesiredPropertyUpdateCallbackAsync(this.OnDesiredPropertyChanged, null);
         }
 
@@ -68,7 +68,7 @@ namespace Rigado.S1_PnP_GA
                 {
                     value = refreshInterval
                 },
-                runnin = new
+                running = new
                 {
                     value = running
                 }
