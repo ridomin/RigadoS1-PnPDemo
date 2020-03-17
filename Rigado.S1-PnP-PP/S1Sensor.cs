@@ -56,6 +56,33 @@ namespace Rigado.S1_PnP_PP
             }
         }
 
+        public async Task EnterTelemetryLoopAsync(CancellationToken quitSignal)
+        {
+            async Task SendTelemetryValueAsync(string telemetryName, double telemetryValue)
+            {
+                Console.WriteLine($"Sending {telemetryName}: [{telemetryValue}].");
+                await base.SendTelemetryAsync(telemetryName, JsonSerializer.Serialize(telemetryValue)).ConfigureAwait(false);
+            }
+
+            while (!quitSignal.IsCancellationRequested)
+            {
+                if (running)
+                {
+                    var rand = new Random();
+                    // TODO: when telemetry flattening is supported, send these together
+                    await SendTelemetryValueAsync("temperature",rand.NextDouble() + 20.0).ConfigureAwait(false);
+                    await SendTelemetryValueAsync("humidity",rand.NextDouble() + 50).ConfigureAwait(false);
+                    await SendTelemetryValueAsync("battery", rand.Next(0, 100)).ConfigureAwait(false);
+                    Console.WriteLine($"Waiting {refreshTelemetryInterval}s to send more telemetry.\n---\n");
+                } 
+                else
+                {
+                    Console.WriteLine("Device is stopped");
+                }
+                Thread.Sleep(refreshTelemetryInterval * 1000);
+            }
+        }
+
         async Task ReportRunningProp(bool running)
         {
             var runningProperty = new DigitalTwinPropertyReport("running", JsonSerializer.Serialize(running));
@@ -82,34 +109,6 @@ namespace Rigado.S1_PnP_PP
                         "Processing Completed")),
             };
             await base.ReportPropertiesAsync(propertyReport).ConfigureAwait(false);
-        }
-
-
-        public async Task EnterTelemetryLoopAsync(CancellationToken quitSignal)
-        {
-            async Task SendTelemetryValueAsync(string telemetryName, double telemetryValue)
-            {
-                Console.WriteLine($"Sending {telemetryName}: [{telemetryValue}].");
-                await base.SendTelemetryAsync(telemetryName, JsonSerializer.Serialize(telemetryValue)).ConfigureAwait(false);
-            }
-
-            while (!quitSignal.IsCancellationRequested)
-            {
-                if (running)
-                {
-                    var rand = new Random();
-                    // TODO: when telemetry flattening is supported, send these together
-                    await SendTelemetryValueAsync("temperature",rand.NextDouble() + 20.0).ConfigureAwait(false);
-                    await SendTelemetryValueAsync("humidity",rand.NextDouble() + 50).ConfigureAwait(false);
-                    await SendTelemetryValueAsync("battery", rand.Next(0, 100)).ConfigureAwait(false);
-                    Console.WriteLine($"Waiting {refreshTelemetryInterval}s to send more telemetry.\n---\n");
-                } 
-                else
-                {
-                    Console.WriteLine("Device is stopped");
-                }
-                Thread.Sleep(refreshTelemetryInterval * 1000);
-            }
         }
 
         void ShowTelemetryRefresh()
