@@ -1,0 +1,1 @@
+openssl pkcs7 -inform der -print_cert -in nodevice4.p7b
