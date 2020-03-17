@@ -7,18 +7,20 @@ namespace Rigado.S1_PnP_GA
 {
     class DeviceInformation
     {
+        string pnpComponentName = string.Empty;
         DeviceClient _deviceClient;
 
-        public DeviceInformation(DeviceClient deviceClient)
+        public DeviceInformation(DeviceClient deviceClient, string componentName)
         {
             _deviceClient = deviceClient;
+            pnpComponentName = "$iotin:" + componentName;
         }
 
         public async Task UpdatePropertiesAsync()
         {
             TwinCollection reportedProperties = new TwinCollection();
 
-            reportedProperties["$iotin:Device_information_S1_Sensor"] = new
+            reportedProperties[pnpComponentName] = new
             {
                 manufacturer = new 
                 { 

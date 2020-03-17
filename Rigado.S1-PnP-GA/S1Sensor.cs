@@ -10,7 +10,7 @@ namespace Rigado.S1_PnP_GA
 {
     class S1Sensor
     {
-        string componentName = "$iotin:S1_Sensor";
+        string pnpComponentName = string.Empty;
 
         const string refreshIntervalPropertyName = "refreshInterval";
         public int refreshInterval = 1;
@@ -21,9 +21,10 @@ namespace Rigado.S1_PnP_GA
         DeviceClient deviceClient;
 
 
-        internal S1Sensor(DeviceClient client)
+        internal S1Sensor(DeviceClient client, string componentName)
         {
             deviceClient = client;
+            pnpComponentName = "$iotin:" + componentName;
         }
 
         // Properties
@@ -38,11 +39,11 @@ namespace Rigado.S1_PnP_GA
         {
             string result = string.Empty;
 
-            if (properties.Contains(componentName))
+            if (properties.Contains(pnpComponentName))
             {
-                if (null!=properties[componentName][refreshIntervalPropertyName])
+                if (null!=properties[pnpComponentName][refreshIntervalPropertyName])
                 {
-                    result = Convert.ToString(properties[componentName][refreshIntervalPropertyName]["value"]);
+                    result = Convert.ToString(properties[pnpComponentName][refreshIntervalPropertyName]["value"]);
                 }
             }
             return result;
@@ -62,7 +63,7 @@ namespace Rigado.S1_PnP_GA
         async Task UpdatePropertiesAsync()
         {
             TwinCollection reportedProperties = new TwinCollection();
-            reportedProperties[componentName] = new
+            reportedProperties[pnpComponentName] = new
             {
                 refreshInterval = new
                 {
@@ -123,8 +124,8 @@ namespace Rigado.S1_PnP_GA
         //Commands
         public async Task RegisterCommandsAsync()
         {
-            await deviceClient.SetMethodHandlerAsync(componentName + "*start", start, null);
-            await deviceClient.SetMethodHandlerAsync(componentName + "*stop", stop, null);
+            await deviceClient.SetMethodHandlerAsync(pnpComponentName + "*start", start, null);
+            await deviceClient.SetMethodHandlerAsync(pnpComponentName + "*stop", stop, null);
         }
 
         async Task<MethodResponse> start(MethodRequest methodRequest, object userContext)
