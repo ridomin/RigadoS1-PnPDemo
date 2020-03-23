@@ -23,8 +23,7 @@ namespace Rigado.S1_Central_GA
 
         public async Task RunDeviceAsync()
         {
-            var deviceFactory = new DeviceClientFactory(_connectionString, _logger);
-            var deviceClient = await deviceFactory.CreateDeviceClientAsync();
+            var deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(_connectionString, _logger);
 
             var deviceInformation = new DeviceInformation(deviceClient);
             await deviceInformation.UpdatePropertiesAsync();
