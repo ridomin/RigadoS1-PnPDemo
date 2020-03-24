@@ -49,8 +49,7 @@ namespace Rigado.S1_PnP_PP
 
         private async Task<DigitalTwinClient> CreateDigitalTwinsClientAsync()
         {
-            var factory = new DeviceClientFactory(connectionString, logger);
-            var deviceClient = await factory.CreateDeviceClientAsync();
+            var deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(connectionString, logger);
             deviceClient.SetConnectionStatusChangesHandler((ConnectionStatus status, ConnectionStatusChangeReason reason) => logger.LogWarning($"Connection status changed: {status} {reason}"));
             var digitalTwinClient = new DigitalTwinClient(deviceClient);
             return digitalTwinClient;

@@ -9,7 +9,7 @@ namespace Rigado.S1_PnP_GA
 {
     class S1Device
     {
-        private string _connectionString;
+        private readonly string _connectionString;
 
         private readonly ILogger _logger;
         private readonly CancellationToken _quitSignal;
@@ -23,8 +23,7 @@ namespace Rigado.S1_PnP_GA
 
         public async Task RunDeviceAsync()
         {
-            var deviceFactory = new DeviceClientFactory(_connectionString, _logger);
-            var deviceClient = await deviceFactory.CreateDeviceClientAsync();
+            var deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(_connectionString, _logger);
 
             var deviceInformation = new DeviceInformation(deviceClient, "Device_information_S1_Sensor");
             await deviceInformation.UpdatePropertiesAsync();

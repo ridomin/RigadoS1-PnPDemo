@@ -22,7 +22,7 @@ namespace AzureIoT.PnP.DeviceInformation
         private const string TotalMemory = "totalMemory";
 
 
-        DeviceInfo devInfo;
+        //DeviceInfo devInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeviceInformationInterface"/> class.
