@@ -1,5 +1,7 @@
 # RigadoS1 PnP Demo
 
+![.NET Core](https://github.com/ridomin/RigadoS1-PnPDemo/workflows/.NET%20Core/badge.svg)
+
 This repo contains a C# sample to demo [Azure IoT PnP](https://docs.microsoft.com/en-us/azure/iot-pnp/overview-iot-plug-and-play) (Plug & Play) features.
 
 >*The materials on this repo are not related to the Rigado company*
