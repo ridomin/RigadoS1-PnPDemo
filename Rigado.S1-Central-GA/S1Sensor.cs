@@ -37,7 +37,9 @@ namespace Rigado.S1_Central_GA
             string result = string.Empty;
             if (properties.Contains(propertyName))
             {
-                result = Convert.ToString(properties[refreshIntervalPropertyName]["value"]);
+                var prop = properties[propertyName];
+                var propVal = prop.Value;
+                result = Convert.ToString(propVal);
             }
             return result;
         }
