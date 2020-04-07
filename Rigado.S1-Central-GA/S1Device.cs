@@ -10,10 +10,13 @@ namespace Rigado.S1_Central_GA
 {
     class S1Device
     {
-        private string _connectionString;
+        private readonly string _connectionString;
 
         private readonly ILogger _logger;
         private readonly CancellationToken _quitSignal;
+
+        int s1Sensor_refreshInterval = 3;
+        bool s1Sensor_running = true;
 
         public S1Device(string connectionString, ILogger logger, CancellationToken quitSignal)
         {
@@ -39,28 +42,32 @@ namespace Rigado.S1_Central_GA
             await deviceInformation.ReportTwinPropertiesAsync();
 
             var s1Sensor = new S1Sensor(deviceClient, _logger);
-            await s1Sensor.ReadTwinPropertiesAsync();
-            s1Sensor.RegisterRefreshIntervalUpdated((int interval) => {
-                s1Sensor.refreshInterval = interval;
-            });
+            
+            s1Sensor.RegisterRefreshIntervalUpdated( (int interval) => {
+                s1Sensor_refreshInterval = interval;
+                return Task.FromResult(0);
+              });
 
             await s1Sensor.RegisterStartCommandAsync(async (MethodRequest methodRequest, object userContext) => {
                 _logger.LogWarning("Executing Start Command");
-                s1Sensor.running = true;
-                await s1Sensor.ReportTwinPropertiesAsync();
+                s1Sensor_running = true;
+                await s1Sensor.ReportTwinPropertiesAsync(s1Sensor_refreshInterval, s1Sensor_running);
                 return await Task.FromResult(new MethodResponse(new byte[0], 200));
             }, null);
 
             await s1Sensor.RegisterStopCommandAsync(async (MethodRequest methodRequest, object userContext) => {
                 _logger.LogWarning("Executing Stop Command");
-                s1Sensor.running = false;
-                await s1Sensor.ReportTwinPropertiesAsync();
+                s1Sensor_running = false;
+                await s1Sensor.ReportTwinPropertiesAsync(s1Sensor_refreshInterval, s1Sensor_running);
                 return await Task.FromResult(new MethodResponse(new byte[0], 200));
             }, null);
 
+            await s1Sensor.ReadTwinPropertiesAsync();
+            await s1Sensor.ReportTwinPropertiesAsync(s1Sensor_refreshInterval, s1Sensor_running);
+
             while (!_quitSignal.IsCancellationRequested)
             {
-                if (s1Sensor.running)
+                if (s1Sensor_running)
                 {
                     var rnd = new Random();
                     var temp = rnd.NextDouble() + 50.0;
@@ -73,8 +80,8 @@ namespace Rigado.S1_Central_GA
                     _logger.LogWarning("Device is stopped");
                 }
 
-                _logger.LogInformation($"Waiting {s1Sensor.refreshInterval} s.");
-                Thread.Sleep(s1Sensor.refreshInterval * 1000);
+                _logger.LogInformation($"Waiting {s1Sensor_refreshInterval} s.");
+                Thread.Sleep(s1Sensor_refreshInterval * 1000);
             }
         }
 

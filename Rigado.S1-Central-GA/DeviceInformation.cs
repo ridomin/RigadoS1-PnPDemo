@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Rigado.S1_Central_GA
 {
-    class DeviceInformation 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "From DTLD")]
+    class DeviceInformation
     {
         string _manufacturer = string.Empty;
         string _model = string.Empty;
@@ -16,11 +17,9 @@ namespace Rigado.S1_Central_GA
         string _processorManufacturer = string.Empty;
         double _totalStorage = 0;
         double _totalMemory = 0;
-
-        DeviceClient _deviceClient;
-        TwinCollection _reportedProperties = new TwinCollection();
-
-        ILogger _logger;
+        readonly DeviceClient _deviceClient;
+        readonly TwinCollection _reportedProperties = new TwinCollection();
+        readonly ILogger _logger;
 
         public DeviceInformation(DeviceClient deviceClient, ILogger logger)
         {
@@ -82,6 +81,7 @@ namespace Rigado.S1_Central_GA
             throw new NotImplementedException();
         }
 
+        
         public string manufacturer
         {
             get { return _manufacturer; }
