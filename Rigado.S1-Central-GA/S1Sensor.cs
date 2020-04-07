@@ -1,6 +1,7 @@
 
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Text;
 using System.Threading;
@@ -8,28 +9,54 @@ using System.Threading.Tasks;
 
 namespace Rigado.S1_Central_GA
 {
-    class S1Sensor
+    class S1Sensor 
     {
-        const string refreshIntervalPropertyName = "refreshInterval";
-        public int refreshInterval = 1;
+        const string _refreshIntervalPropertyName = "refreshInterval";
+        public int _refreshInterval = 1;
 
-        const string runningPropertyName = "running";
-        public bool running = true;
+        const string _runningPropertyName = "running";
+        public bool _running = true;
         
-        DeviceClient deviceClient;
+        DeviceClient _deviceClient;
 
+        ILogger _logger;
 
-        internal S1Sensor(DeviceClient client)
+        internal S1Sensor(DeviceClient client, ILogger logger) 
         {
-            deviceClient = client;
+            _logger = logger;
+            _deviceClient = client;
+            _deviceClient.SetDesiredPropertyUpdateCallbackAsync(this.OnDesiredPropertyChanged, null).Wait();
         }
 
-        // Properties
-        public async Task SyncTwinPropertiesAsync()
+        public int refreshInterval
         {
-            await ReadTwinPropsAsync();
-            await UpdatePropertiesAsync();
-            await deviceClient.SetDesiredPropertyUpdateCallbackAsync(this.OnDesiredPropertyChanged, null);
+            get { return _refreshInterval; }
+            set { _refreshInterval = value; }
+        }
+
+        public bool running
+        {
+            get { return _running; }
+            set { _running = value; }
+        }
+
+        public async Task ReadTwinPropertiesAsync()
+        {
+            var t = await _deviceClient.GetTwinAsync();
+
+            _logger.LogInformation($"S1Sensor.DesiredProperties.Count={t.Properties.Desired.Count}");
+            string desiredRefreshInterval = GetPropertyValueIfFound(t.Properties.Desired, _refreshIntervalPropertyName);
+            if (int.TryParse(desiredRefreshInterval, out int intValue))
+            {
+                _refreshInterval = intValue;
+            }
+
+            _logger.LogInformation($"S1Sensor.ReportedProperties.Count={t.Properties.Reported.Count}");
+            string reportedRunningValue =GetPropertyValueIfFound(t.Properties.Reported, _runningPropertyName);
+            if (bool.TryParse(reportedRunningValue, out bool reportedRunning))
+            {
+                _running = reportedRunning;
+            }
         }
 
         string GetPropertyValueIfFound(TwinCollection properties, string propertyName)
@@ -43,94 +70,73 @@ namespace Rigado.S1_Central_GA
             }
             return result;
         }
-
-        async Task ReadTwinPropsAsync()
-        {
-            var t = await deviceClient.GetTwinAsync();
-            var desiredProperties = t.Properties.Desired;
-            string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, refreshIntervalPropertyName);
-            if (int.TryParse(desiredPropertyValue, out int intValue))
-            {
-                refreshInterval = intValue;
-            }
-        }
-
-        async Task UpdatePropertiesAsync()
+        
+        public async Task ReportTwinPropertiesAsync()
         {
             TwinCollection reportedProperties = new TwinCollection();
-            reportedProperties[runningPropertyName] = running; 
-            reportedProperties[refreshIntervalPropertyName] = refreshInterval;
-            await deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
+            reportedProperties[_runningPropertyName] = _running; 
+            reportedProperties[_refreshIntervalPropertyName] = _refreshInterval;
+            await _deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
         }
+
         async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object ctx)
         {
-            Console.WriteLine("	Desired property update has received.");
-            Console.WriteLine($"	{desiredProperties.ToJson()}");
+            _logger.LogWarning("Desired property update received.");
+            _logger.LogInformation($"	{desiredProperties.ToJson()}");
 
-            string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, refreshIntervalPropertyName);
+            string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, _refreshIntervalPropertyName);
             if (int.TryParse(desiredPropertyValue, out int intValue))
             {
-                refreshInterval = intValue;
+                _refreshInterval = intValue;
             }
-            await UpdatePropertiesAsync();
+            else
+            {
+                _logger.LogWarning($"Desired Property {_refreshIntervalPropertyName} : {desiredPropertyValue} no found or not valid.");
+            }
+            await ReportTwinPropertiesAsync();
         }
 
         //Telemetry
-        public async Task EnterTelemetryLoopAsync(CancellationToken quitSignal)
+
+        public async Task SendTemperatureTelemetryAsync(double temperature)
         {
-            async Task SendTelemetryAsync()
-            {
-                var rnd = new Random();
-                var temp = rnd.NextDouble() + 50.0;
-                var humid = rnd.NextDouble() + 20.1;
-                var batt = rnd.Next(10);
-                string blob = $"{{\"temperature\": {temp}, \"humidity\": {humid} , \"battery\" : {batt}}}";
-                Console.WriteLine($"Sending {blob} . Waiting: {refreshInterval}s");
+            _logger.LogInformation($"Sending Telemetry: temperature:{temperature}");
+            await _deviceClient.SendEventAsync(new Message(Encoding.UTF8.GetBytes($"{{\"temperature\": {temperature} }}")));
+        }
 
-                var message = Encoding.UTF8.GetBytes(blob);
+        public async Task SendHumidityTelemetryAsync(double humidity)
+        {
+            _logger.LogInformation($"Sending Telemetry: humidity:{humidity} ");
+            await _deviceClient.SendEventAsync(new Message(Encoding.UTF8.GetBytes($"{{\"humidity\": {humidity} }}")));
+        }
 
-                await deviceClient.SendEventAsync(new Message(message));
-            }
+        public async Task SendBatteryTelemetryAsync(int battery)
+        {
+            _logger.LogInformation($"Sending Telemetry: battery:{battery}");
+            await _deviceClient.SendEventAsync(new Message(Encoding.UTF8.GetBytes($"{{\"battery\": {battery} }}")));
+        }
 
-            while (!quitSignal.IsCancellationRequested)
-            {
-                if (running)
-                {
-                    await SendTelemetryAsync();
-                }
-                else
-                {
-                    Console.WriteLine("Device is stopped");
-                }
-                Thread.Sleep(refreshInterval * 1000);
-            }
+        public async Task SendTemperatureHumidityBatteryTelemetryAsync(double temperature, double humidity, int battery)
+        {
+            _logger.LogInformation($"Sending Telemetry: temperature:{temperature} humidity:{humidity} battery:{battery}");
+            await _deviceClient.SendEventAsync(
+                new Message(
+                    Encoding.UTF8.GetBytes(
+                        $"{{\"temperature\": {temperature}, \"humidity\": {humidity} , \"battery\" : {battery}}}"
+                        )
+                    )
+                );
         }
 
         //Commands
-        public async Task RegisterCommandsAsync()
+        public async Task RegisterStartCommandAsync(MethodCallback methodHandler, object userContext)
         {
-            await deviceClient.SetMethodHandlerAsync(nameof(start), start, null);
-            await deviceClient.SetMethodHandlerAsync(nameof(stop), stop, null);
+            await _deviceClient.SetMethodHandlerAsync("start", methodHandler, userContext);
         }
 
-        async Task<MethodResponse> start(MethodRequest methodRequest, object userContext)
+        public async Task RegisterStopCommandAsync(MethodCallback methodHandler, object userContext)
         {
-            running = true;
-            await UpdatePropertiesAsync();
-
-            Console.WriteLine($"	 *** start was called.");
-
-            return await Task.FromResult(new MethodResponse(new byte[0], 200));
-        }
-
-        async Task<MethodResponse> stop(MethodRequest methodRequest, object userContext)
-        {
-            running = false;
-            await UpdatePropertiesAsync();
-
-            Console.WriteLine($"	 *** stop was called.");
-
-            return await Task.FromResult(new MethodResponse(new byte[0], 200));
+            await _deviceClient.SetMethodHandlerAsync("stop", methodHandler, userContext);
         }
     }
 }

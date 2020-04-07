@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rigado.S1_Central_GA
 {
-    class DeviceInformation
+    class DeviceInformation 
     {
         string _manufacturer = string.Empty;
         string _model = string.Empty;
@@ -29,11 +29,12 @@ namespace Rigado.S1_Central_GA
             ReadTwinPropertiesAsync().Wait();
         }
 
-        public async Task ReadTwinPropertiesAsync() 
+        public async Task ReadTwinPropertiesAsync()
         {
             var twin = await _deviceClient.GetTwinAsync();
             var reportedProperties = twin.Properties.Reported;
-            if (reportedProperties.Count>7 )
+            _logger.LogInformation($"ReportedProperties.Count={reportedProperties.Count}");
+            if (reportedProperties.Count > 7 && reportedProperties.Contains("manufacturer"))
             {
                 _manufacturer = Convert.ToString(reportedProperties["manufacturer"]);
                 _model = Convert.ToString(reportedProperties["model"]);
@@ -44,15 +45,15 @@ namespace Rigado.S1_Central_GA
                 _totalStorage = Convert.ToDouble(reportedProperties["totalStorage"]);
                 _totalMemory = Convert.ToDouble(reportedProperties["totalMemory"]);
 
-                _logger.LogInformation($"Reported Properties: {_manufacturer} {_model} {_swVersion} {_osName} {_processorArchitecture} {_processorManufacturer} {_totalStorage} {_totalMemory}");
+                _logger.LogWarning($"Reported Properties: {_manufacturer} {_model} {_swVersion} {_osName} {_processorArchitecture} {_processorManufacturer} {_totalStorage} {_totalMemory}");
             }
             else
             {
-                _logger.LogWarning("Reported Properties Count: " + _reportedProperties.Count.ToString());
+                _logger.LogWarning("DeviceInfo Properties are not available, usually happens on first device connection.");
             }
         }
 
-        public async Task ReportTwinProperties()
+        public async Task ReportTwinPropertiesAsync()
         {
             await _deviceClient.UpdateReportedPropertiesAsync(_reportedProperties).ConfigureAwait(false);
             _logger.LogWarning("Updated DeviceInfo props");
@@ -64,13 +65,22 @@ namespace Rigado.S1_Central_GA
             _model = Environment.OSVersion.Platform.ToString();// (model)
             _swVersion = Environment.OSVersion.VersionString; ; // (swVersion)
             _osName = Environment.GetEnvironmentVariable("OS"); // (osName)
-            _processorArchitecture= Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"); // (processorArchitecture)
+            _processorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"); // (processorArchitecture)
             _processorManufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"); // (processorManufacturer)
             _totalStorage = System.IO.DriveInfo.GetDrives()[0].TotalSize; // (totalStorage) <- try another value!
             _totalMemory = Environment.WorkingSet; // (totalMemory) <- try another value!
-            await ReportTwinProperties();
+            await ReportTwinPropertiesAsync();
         }
 
+        public Task SendTelemetryAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RegisterCommandsAsync()
+        {
+            throw new NotImplementedException();
+        }
 
         public string manufacturer
         {
@@ -85,9 +95,9 @@ namespace Rigado.S1_Central_GA
         public string model
         {
             get { return _model; }
-            set 
+            set
             {
-                _model = value; 
+                _model = value;
                 _reportedProperties["model"] = _model;
             }
         }
@@ -97,7 +107,7 @@ namespace Rigado.S1_Central_GA
             get { return _swVersion; }
             set
             {
-                _swVersion= value;
+                _swVersion = value;
                 _reportedProperties["swVersion"] = _swVersion;
             }
         }

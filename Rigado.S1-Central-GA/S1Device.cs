@@ -1,3 +1,4 @@
+using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Logging;
 using Rido;
@@ -26,6 +27,7 @@ namespace Rigado.S1_Central_GA
             var deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(_connectionString, _logger);
 
             var deviceInformation = new DeviceInformation(deviceClient, _logger);
+            await deviceInformation.ReadTwinPropertiesAsync();
             deviceInformation.manufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"); // (manufacturer)
             deviceInformation.model = Environment.OSVersion.Platform.ToString();// (model)
             deviceInformation.swVersion = Environment.OSVersion.VersionString; ; // (swVersion)
@@ -34,13 +36,43 @@ namespace Rigado.S1_Central_GA
             deviceInformation.processorManufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"); // (processorManufacturer)
             deviceInformation.totalStorage = System.IO.DriveInfo.GetDrives()[0].TotalSize; // (totalStorage) <- try another value!
             deviceInformation.totalMemory = Environment.WorkingSet; // (totalMemory) <- try another value!
-            await deviceInformation.ReportTwinProperties();
+            await deviceInformation.ReportTwinPropertiesAsync();
 
-            var s1Sensor = new S1Sensor(deviceClient);
+            var s1Sensor = new S1Sensor(deviceClient, _logger);
+            await s1Sensor.ReadTwinPropertiesAsync();
 
-            await s1Sensor.SyncTwinPropertiesAsync();
-            await s1Sensor.RegisterCommandsAsync();
-            await s1Sensor.EnterTelemetryLoopAsync(_quitSignal); 
+            await s1Sensor.RegisterStartCommandAsync(async (MethodRequest methodRequest, object userContext) => {
+                _logger.LogWarning("Executing Start Command");
+                s1Sensor.running = true;
+                await s1Sensor.ReportTwinPropertiesAsync();
+                return await Task.FromResult(new MethodResponse(new byte[0], 200));
+            }, null);
+
+            await s1Sensor.RegisterStopCommandAsync(async (MethodRequest methodRequest, object userContext) => {
+                _logger.LogWarning("Executing Stop Command");
+                s1Sensor.running = false;
+                await s1Sensor.ReportTwinPropertiesAsync();
+                return await Task.FromResult(new MethodResponse(new byte[0], 200));
+            }, null);
+
+            while (!_quitSignal.IsCancellationRequested)
+            {
+                if (s1Sensor.running)
+                {
+                    var rnd = new Random();
+                    var temp = rnd.NextDouble() + 50.0;
+                    var humid = rnd.NextDouble() + 20.1;
+                    var batt = rnd.Next(10);
+                    await s1Sensor.SendTemperatureHumidityBatteryTelemetryAsync(temp, humid, batt);
+                }
+                else
+                {
+                    _logger.LogWarning("Device is stopped");
+                }
+
+                _logger.LogInformation($"Waiting {s1Sensor.refreshInterval} s.");
+                Thread.Sleep(s1Sensor.refreshInterval * 1000);
+            }
         }
     }
 }
