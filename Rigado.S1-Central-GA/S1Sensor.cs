@@ -14,7 +14,6 @@ namespace Rigado.S1_Central_GA
         const string _runningPropertyName = "running";
 
         const string _refreshIntervalPropertyName = "refreshInterval";
-
         public delegate Task RefreshIntervalUpdated(int refreshInterval);
         RefreshIntervalUpdated refreshIntervalCallback;
 
@@ -46,7 +45,8 @@ namespace Rigado.S1_Central_GA
                 }
             }
 
-            // TODO: how to read reported properties?
+            // TODO: should we read reported properties?
+
             //_logger.LogInformation($"S1Sensor.ReportedProperties.Count={t.Properties.Reported.Count}");
             //string reportedRunningValue =GetPropertyValueIfFound(t.Properties.Reported, _runningPropertyName);
             //if (bool.TryParse(reportedRunningValue, out bool reportedRunning))

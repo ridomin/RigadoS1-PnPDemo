@@ -42,12 +42,7 @@ namespace Rigado.S1_Central_GA
             await deviceInformation.ReportTwinPropertiesAsync();
 
             var s1Sensor = new S1Sensor(deviceClient, _logger);
-            
-            s1Sensor.RegisterRefreshIntervalUpdated( (int interval) => {
-                s1Sensor_refreshInterval = interval;
-                return Task.FromResult(0);
-              });
-
+            //commands
             await s1Sensor.RegisterStartCommandAsync(async (MethodRequest methodRequest, object userContext) => {
                 _logger.LogWarning("Executing Start Command");
                 s1Sensor_running = true;
@@ -62,9 +57,17 @@ namespace Rigado.S1_Central_GA
                 return await Task.FromResult(new MethodResponse(new byte[0], 200));
             }, null);
 
+            //properties
+
+            s1Sensor.RegisterRefreshIntervalUpdated((int interval) => {
+                s1Sensor_refreshInterval = interval;
+                return Task.FromResult(0);
+            });
+
             await s1Sensor.ReadTwinPropertiesAsync();
             await s1Sensor.ReportTwinPropertiesAsync(s1Sensor_refreshInterval, s1Sensor_running);
 
+            //telemetry
             while (!_quitSignal.IsCancellationRequested)
             {
                 if (s1Sensor_running)

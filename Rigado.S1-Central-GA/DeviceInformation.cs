@@ -25,7 +25,6 @@ namespace Rigado.S1_Central_GA
         {
             _deviceClient = deviceClient;
             _logger = logger;
-            ReadTwinPropertiesAsync().Wait();
         }
 
         public async Task ReadTwinPropertiesAsync()
