@@ -13,6 +13,8 @@ namespace Rigado.S1_Central_GA
     {
         const string _refreshIntervalPropertyName = "refreshInterval";
         public int _refreshInterval = 1;
+        public delegate void RefreshIntervalUpdated(int refreshInterval);
+        RefreshIntervalUpdated refreshIntervalCallback;
 
         const string _runningPropertyName = "running";
         public bool _running = true;
@@ -21,6 +23,7 @@ namespace Rigado.S1_Central_GA
 
         ILogger _logger;
 
+        
         internal S1Sensor(DeviceClient client, ILogger logger) 
         {
             _logger = logger;
@@ -79,6 +82,11 @@ namespace Rigado.S1_Central_GA
             await _deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
         }
 
+        public void RegisterRefreshIntervalUpdated(RefreshIntervalUpdated cb)
+        {
+            refreshIntervalCallback = cb;
+        }
+
         async Task OnDesiredPropertyChanged(TwinCollection desiredProperties, object ctx)
         {
             _logger.LogWarning("Desired property update received.");
@@ -87,7 +95,8 @@ namespace Rigado.S1_Central_GA
             string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, _refreshIntervalPropertyName);
             if (int.TryParse(desiredPropertyValue, out int intValue))
             {
-                _refreshInterval = intValue;
+                //_refreshInterval = intValue;
+                refreshIntervalCallback(intValue);
             }
             else
             {

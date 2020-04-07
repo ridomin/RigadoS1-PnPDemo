@@ -40,6 +40,9 @@ namespace Rigado.S1_Central_GA
 
             var s1Sensor = new S1Sensor(deviceClient, _logger);
             await s1Sensor.ReadTwinPropertiesAsync();
+            s1Sensor.RegisterRefreshIntervalUpdated((int interval) => {
+                s1Sensor.refreshInterval = interval;
+            });
 
             await s1Sensor.RegisterStartCommandAsync(async (MethodRequest methodRequest, object userContext) => {
                 _logger.LogWarning("Executing Start Command");
@@ -74,5 +77,7 @@ namespace Rigado.S1_Central_GA
                 Thread.Sleep(s1Sensor.refreshInterval * 1000);
             }
         }
+
+        
     }
 }
