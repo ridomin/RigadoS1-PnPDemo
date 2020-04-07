@@ -25,10 +25,19 @@ namespace Rigado.S1_Central_GA
         {
             var deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(_connectionString, _logger);
 
-            var deviceInformation = new DeviceInformation(deviceClient);
-            await deviceInformation.UpdatePropertiesAsync();
-            
+            var deviceInformation = new DeviceInformation(deviceClient, _logger);
+            deviceInformation.manufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"); // (manufacturer)
+            deviceInformation.model = Environment.OSVersion.Platform.ToString();// (model)
+            deviceInformation.swVersion = Environment.OSVersion.VersionString; ; // (swVersion)
+            deviceInformation.osName = Environment.GetEnvironmentVariable("OS"); // (osName)
+            deviceInformation.processorArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE"); // (processorArchitecture)
+            deviceInformation.processorManufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"); // (processorManufacturer)
+            deviceInformation.totalStorage = System.IO.DriveInfo.GetDrives()[0].TotalSize; // (totalStorage) <- try another value!
+            deviceInformation.totalMemory = Environment.WorkingSet; // (totalMemory) <- try another value!
+            await deviceInformation.ReportTwinProperties();
+
             var s1Sensor = new S1Sensor(deviceClient);
+
             await s1Sensor.SyncTwinPropertiesAsync();
             await s1Sensor.RegisterCommandsAsync();
             await s1Sensor.EnterTelemetryLoopAsync(_quitSignal); 
