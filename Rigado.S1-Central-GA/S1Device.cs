@@ -44,14 +44,14 @@ namespace Rigado.S1_Central_GA
             var s1Sensor = new S1Sensor(deviceClient, _logger);
             //commands
             await s1Sensor.RegisterStartCommandAsync(async (MethodRequest methodRequest, object userContext) => {
-                _logger.LogWarning("Executing Start Command");
+                _logger.LogWarning("Executing start Command");
                 s1Sensor_running = true;
                 await s1Sensor.ReportTwinPropertiesAsync(s1Sensor_refreshInterval, s1Sensor_running);
                 return await Task.FromResult(new MethodResponse(new byte[0], 200));
             }, null);
 
             await s1Sensor.RegisterStopCommandAsync(async (MethodRequest methodRequest, object userContext) => {
-                _logger.LogWarning("Executing Stop Command");
+                _logger.LogWarning("Executing stop Command");
                 s1Sensor_running = false;
                 await s1Sensor.ReportTwinPropertiesAsync(s1Sensor_refreshInterval, s1Sensor_running);
                 return await Task.FromResult(new MethodResponse(new byte[0], 200));

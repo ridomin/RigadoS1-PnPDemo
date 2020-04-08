@@ -35,14 +35,7 @@ namespace Rigado.S1_Central_GA
             string desiredRefreshInterval = GetPropertyValueIfFound(t.Properties.Desired, _refreshIntervalPropertyName);
             if (int.TryParse(desiredRefreshInterval, out int intValue))
             {
-                if (refreshIntervalCallback!=null)
-                { 
-                    await refreshIntervalCallback(intValue);
-                } 
-                else
-                {
-                    _logger.LogInformation("RefreshInterval updated, but no callback registered");
-                }
+                await SafeRefreshIntervalCallback(intValue);
             }
 
             // TODO: should we read reported properties?
@@ -53,6 +46,18 @@ namespace Rigado.S1_Central_GA
             //{
             //    _running = reportedRunning;
             //}
+        }
+
+        private async Task SafeRefreshIntervalCallback(int intValue)
+        {
+            if (refreshIntervalCallback != null)
+            {
+                await refreshIntervalCallback(intValue);
+            }
+            else
+            {
+                _logger.LogInformation("RefreshInterval updated, but no callback registered");
+            }
         }
 
         string GetPropertyValueIfFound(TwinCollection properties, string propertyName)
@@ -88,7 +93,7 @@ namespace Rigado.S1_Central_GA
             string desiredPropertyValue = GetPropertyValueIfFound(desiredProperties, _refreshIntervalPropertyName);
             if (int.TryParse(desiredPropertyValue, out int intValue))
             {
-                await refreshIntervalCallback(intValue);
+                await SafeRefreshIntervalCallback(intValue);
             }
             else
             {
