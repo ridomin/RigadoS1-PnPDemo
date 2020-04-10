@@ -102,10 +102,7 @@ namespace Rigado.S1_Central_GA
         public string manufacturer
         {
             get { return _manufacturer; }
-            set
-            {
-                _manufacturer = value;
-            }
+            set { _manufacturer = value; }
         }
 
         public string model

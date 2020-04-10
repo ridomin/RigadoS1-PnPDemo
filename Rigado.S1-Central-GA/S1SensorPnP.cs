@@ -81,14 +81,8 @@ namespace Rigado.S1_Central_GA
             TwinCollection reportedProperties = new TwinCollection();
             reportedProperties[pnpComponentName] = new
             {
-                refreshInterval = new
-                {
-                    value = refreshIntervalValue
-                },
-                running = new
-                {
-                    value = runningValue
-                }
+                refreshInterval = new { value = refreshIntervalValue },
+                running = new { value = runningValue } 
             };
             await _deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
         }
