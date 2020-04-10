@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Rigado.S1_Central_GA
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "From DTLD")]
-    class DeviceInformation
+    class DeviceInformationPnP
     {
         string _manufacturer = string.Empty;
         string _model = string.Empty;
@@ -21,10 +21,13 @@ namespace Rigado.S1_Central_GA
         readonly TwinCollection _reportedProperties = new TwinCollection();
         readonly ILogger _logger;
 
-        public DeviceInformation(DeviceClient deviceClient, ILogger logger)
+        string pnpComponentName = string.Empty;
+
+        public DeviceInformationPnP(DeviceClient deviceClient, string componentName, ILogger logger)
         {
             _deviceClient = deviceClient;
             _logger = logger;
+            pnpComponentName = "$iotin:" + componentName;
         }
 
         public async Task ReadTwinPropertiesAsync()
@@ -32,16 +35,16 @@ namespace Rigado.S1_Central_GA
             var twin = await _deviceClient.GetTwinAsync();
             var reportedProperties = twin.Properties.Reported;
             _logger.LogInformation($"ReportedProperties.Count={reportedProperties.Count}");
-            if (reportedProperties.Count > 7 && reportedProperties.Contains("manufacturer"))
+            if (reportedProperties.Count > 7 && reportedProperties.Contains(pnpComponentName))
             {
-                _manufacturer = Convert.ToString(reportedProperties["manufacturer"]);
-                _model = Convert.ToString(reportedProperties["model"]);
-                _swVersion = Convert.ToString(reportedProperties["swVersion"]);
-                _osName = Convert.ToString(reportedProperties["osName"]);
-                _processorArchitecture = Convert.ToString(reportedProperties["processorArchitecture"]);
-                _processorManufacturer = Convert.ToString(reportedProperties["processorManufacturer"]);
-                _totalStorage = Convert.ToDouble(reportedProperties["totalStorage"].Value);
-                _totalMemory = Convert.ToDouble(reportedProperties["totalMemory"].Value);
+                _manufacturer = Convert.ToString(reportedProperties[pnpComponentName]["manufacturer"]);
+                _model = Convert.ToString(reportedProperties[pnpComponentName]["model"]);
+                _swVersion = Convert.ToString(reportedProperties[pnpComponentName]["swVersion"]);
+                _osName = Convert.ToString(reportedProperties[pnpComponentName]["osName"]);
+                _processorArchitecture = Convert.ToString(reportedProperties[pnpComponentName]["processorArchitecture"]);
+                _processorManufacturer = Convert.ToString(reportedProperties[pnpComponentName]["processorManufacturer"]);
+                _totalStorage = Convert.ToDouble(reportedProperties[pnpComponentName]["totalStorage"].Value);
+                _totalMemory = Convert.ToDouble(reportedProperties[pnpComponentName]["totalMemory"].Value);
 
                 _logger.LogWarning($"Reported Properties: {_manufacturer} {_model} {_swVersion} {_osName} {_processorArchitecture} {_processorManufacturer} {_totalStorage} {_totalMemory}");
             }
@@ -53,7 +56,22 @@ namespace Rigado.S1_Central_GA
 
         public async Task ReportTwinPropertiesAsync()
         {
-            await _deviceClient.UpdateReportedPropertiesAsync(_reportedProperties).ConfigureAwait(false);
+            TwinCollection reportedProperties = new TwinCollection();
+
+            reportedProperties[pnpComponentName] = new
+            {
+                manufacturer = new{ value = _manufacturer},
+                model = new { value = _model},
+                swVersion = new { value = _swVersion },
+                osName = new { value = _osName },
+                processorArchitecture = new { value = _processorArchitecture },
+                processorManufacturer = new { value = _processorManufacturer },
+                totalStorage = new { value = _totalStorage }, 
+                totalMemory = new { value = _totalMemory }
+            };
+
+            await _deviceClient.UpdateReportedPropertiesAsync(reportedProperties).ConfigureAwait(false);
+            Console.WriteLine("Updated DeviceInfo props");
             _logger.LogWarning("Updated DeviceInfo props");
         }
 
@@ -87,78 +105,49 @@ namespace Rigado.S1_Central_GA
             set
             {
                 _manufacturer = value;
-                _reportedProperties["manufacturer"] = _manufacturer;
             }
         }
 
         public string model
         {
             get { return _model; }
-            set
-            {
-                _model = value;
-                _reportedProperties["model"] = _model;
-            }
+            set { _model = value; }
         }
 
         public string swVersion
         {
             get { return _swVersion; }
-            set
-            {
-                _swVersion = value;
-                _reportedProperties["swVersion"] = _swVersion;
-            }
+            set { _swVersion = value; }
         }
 
         public string osName
         {
             get { return _osName; }
-            set
-            {
-                _osName = value;
-                _reportedProperties["osName"] = _osName;
-            }
+            set { _osName = value; }
         }
 
         public string processorArchitecture
         {
             get { return _processorArchitecture; }
-            set
-            {
-                _processorArchitecture = value;
-                _reportedProperties["processorArchitecture"] = _processorArchitecture;
-            }
+            set {  _processorArchitecture = value; }
         }
 
         public string processorManufacturer
         {
             get { return _processorManufacturer; }
-            set
-            {
-                _processorManufacturer = value;
-                _reportedProperties["processorManufacturer"] = _processorManufacturer;
-            }
+            set { _processorManufacturer = value; }
         }
 
         public double totalStorage
         {
             get { return _totalStorage; }
-            set
-            {
-                _totalStorage = value;
-                _reportedProperties["totalStorage"] = _totalStorage;
-            }
+            set { _totalStorage = value; }
         }
 
         public double totalMemory
         {
             get { return _totalMemory; }
-            set
-            {
-                _totalMemory = value;
-                _reportedProperties["totalMemory"] = _totalMemory;
-            }
+            set { _totalMemory = value; }
         }
     }
 }

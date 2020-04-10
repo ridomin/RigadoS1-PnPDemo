@@ -29,7 +29,7 @@ namespace Rigado.S1_Central_GA
         {
             var deviceClient = await DeviceClientFactory.CreateDeviceClientAsync(_connectionString, _logger);
 
-            var deviceInformation = new DeviceInformation(deviceClient, _logger);
+            var deviceInformation = new DeviceInformationPnP(deviceClient, "Device_information_S1_Sensor", _logger);
             await deviceInformation.ReadTwinPropertiesAsync();
             deviceInformation.manufacturer = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"); // (manufacturer)
             deviceInformation.model = Environment.OSVersion.Platform.ToString();// (model)
@@ -41,7 +41,7 @@ namespace Rigado.S1_Central_GA
             deviceInformation.totalMemory = Environment.WorkingSet; // (totalMemory) <- try another value!
             await deviceInformation.ReportTwinPropertiesAsync();
 
-            var s1Sensor = new S1Sensor(deviceClient, _logger);
+            var s1Sensor = new S1SensorPnP(deviceClient, "S1_Sensor", _logger);
             //commands
             await s1Sensor.RegisterStartCommandAsync(async (MethodRequest methodRequest, object userContext) => {
                 _logger.LogWarning("Executing start Command");
@@ -77,6 +77,7 @@ namespace Rigado.S1_Central_GA
                     var humid = rnd.NextDouble() + 20.1;
                     var batt = rnd.Next(10);
                     await s1Sensor.SendTemperatureHumidityBatteryTelemetryAsync(temp, humid, batt);
+                    //await s1Sensor.SendTemperatureTelemetryAsync(temp);
                 }
                 else
                 {
