@@ -38,25 +38,20 @@ namespace AzureIoT.PnP.DeviceInformation
 
             ICollection<DigitalTwinPropertyReport> propertyCollection = new Collection<DigitalTwinPropertyReport>();
 
-            void AddProperty(string name, string value)
+            void AddProperty<T>(string name, T value)
             {
                 propertyCollection.Add(new DigitalTwinPropertyReport(name, JsonConvert.SerializeObject(value)));
             }
 
-            void AddPropertyD(string name, double value)
-            {
-                propertyCollection.Add(new DigitalTwinPropertyReport(name, JsonConvert.SerializeObject(value)));
-            }
+            AddProperty<string>(Manufacturer, di.Manufacturer);
+            AddProperty<string>(Model, di.Model);
+            AddProperty<string>(SoftwareVersion, di.SoftwareVersion);
+            AddProperty<string>(OperatingSystemName, di.OperatingSystemName);
+            AddProperty<string>(ProcessorArchitecture, di.ProcessorArchitecture);
+            AddProperty<string>(ProcessorManufacturer, di.ProcessorManufacturer);
+            AddProperty<double>(TotalStorage, di.TotalStorage);
+            AddProperty<double>(TotalMemory, di.TotalMemory);
 
-
-            AddProperty(Manufacturer, di.Manufacturer);
-            AddProperty(Model, di.Model);
-            AddProperty(SoftwareVersion, di.SoftwareVersion);
-            AddProperty(OperatingSystemName, di.OperatingSystemName);
-            AddProperty(ProcessorArchitecture, di.ProcessorArchitecture);
-            AddProperty(ProcessorManufacturer, di.ProcessorManufacturer);
-            AddPropertyD(TotalStorage, di.TotalStorage);
-            AddPropertyD(TotalMemory, di.TotalMemory);
             await ReportPropertiesAsync(propertyCollection).ConfigureAwait(false);
             Console.WriteLine($"DeviceInformationInterface: sent {propertyCollection.Count} properties.");
             propertyCollection.Clear();
